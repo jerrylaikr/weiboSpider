@@ -9,6 +9,7 @@ from .comment_parser import CommentParser
 from .mblog_picAll_parser import MblogPicAllParser
 from .parser import Parser
 from .util import handle_garbled, handle_html, to_video_download_url
+import pytz # TZ CHANGE
 
 logger = logging.getLogger('spider.page_parser')
 
@@ -63,15 +64,14 @@ class PageParser(Parser):
             is_exist = info[0].xpath("div/span[@class='ctt']")
             weibos = []
             if is_exist:
-                since_date = datetime_util.str_to_time(self.since_date)
+                since_date = datetime_util.str_to_time(self.since_date).replace(tzinfo=pytz.timezone("PRC")) # TZ CHANGE
                 for i in range(0, len(info) - 1):
                     weibo = self.get_one_weibo(info[i])
                     if weibo:
                         if weibo.id in weibo_id_list:
                             continue
                         publish_time = datetime_util.str_to_time(
-                            weibo.publish_time)
-
+                            weibo.publish_time).replace(tzinfo=pytz.timezone("PRC")) # TZ CHANGE
                         if publish_time < since_date:
                             if self.is_pinned_weibo(info[i]):
                                 continue
@@ -189,20 +189,20 @@ class PageParser(Parser):
             str_time = handle_garbled(str_time[0])
             publish_time = str_time.split(u'来自')[0]
             if u'刚刚' in publish_time:
-                publish_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+                publish_time = datetime.now().astimezone(pytz.timezone("PRC")).strftime('%Y-%m-%d %H:%M') # TZ CHANGE
             elif u'分钟' in publish_time:
                 minute = publish_time[:publish_time.find(u'分钟')]
                 minute = timedelta(minutes=int(minute))
                 publish_time = (datetime.now() -
-                                minute).strftime('%Y-%m-%d %H:%M')
+                                minute).astimezone(pytz.timezone("PRC")).strftime('%Y-%m-%d %H:%M') # TZ CHANGE
             elif u'今天' in publish_time:
-                today = datetime.now().strftime('%Y-%m-%d')
+                today = datetime.now().astimezone(pytz.timezone("PRC")).strftime('%Y-%m-%d') # TZ CHANGE
                 time = publish_time[3:]
                 publish_time = today + ' ' + time
                 if len(publish_time) > 16:
                     publish_time = publish_time[:16]
             elif u'月' in publish_time:
-                year = datetime.now().strftime('%Y')
+                year = datetime.now().astimezone(pytz.timezone("PRC")).strftime('%Y') # TZ CHANGE
                 month = publish_time[0:2]
                 day = publish_time[3:5]
                 time = publish_time[7:12]

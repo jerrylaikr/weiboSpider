@@ -18,6 +18,7 @@ from . import config_util, datetime_util
 from .downloader import AvatarPictureDownloader
 from .parser import AlbumParser, IndexParser, PageParser, PhotoParser
 from .user import User
+import pytz # TZ CHANGE
 
 FLAGS = flags.FLAGS
 
@@ -155,9 +156,8 @@ class Spider:
     def get_weibo_info(self):
         """获取微博信息"""
         try:
-            since_date = datetime_util.str_to_time(
-                self.user_config['since_date'])
-            now = datetime.now()
+            since_date = datetime_util.str_to_time(self.user_config['since_date']).replace(tzinfo=pytz.timezone("PRC")) # TZ CHANGE
+            now = datetime.now().astimezone(pytz.timezone("PRC")) # TZ CHANGE
             if since_date <= now:
                 page_num = IndexParser(
                     self.cookie,
@@ -248,7 +248,7 @@ class Spider:
         self.user_config = user_config
         self.weibo_id_list = []
         if self.end_date == 'now':
-            self.new_since_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+            self.new_since_date = datetime.now().astimezone(pytz.timezone("PRC")).strftime('%Y-%m-%d %H:%M') # TZ CHANGE
         else:
             self.new_since_date = self.end_date
         self.writers = []
