@@ -72,6 +72,13 @@ class PageParser(Parser):
                         publish_time = datetime_util.str_to_time(
                             weibo.publish_time)
 
+                        logger.info("#"*120)
+                        logger.info(self.url)
+                        from lxml import etree
+                        logger.info(etree.tostring(info[i],encoding="unicode",pretty_print=True))
+                        logger.info(f'publish_time = {publish_time.strftime("%Y-%m-%d %H:%M")}')
+                        logger.info(f"{self.is_pinned_weibo(info[i]) = }")
+                        logger.info("#"*120)
                         if publish_time < since_date:
                             if self.is_pinned_weibo(info[i]):
                                 continue
